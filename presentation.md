@@ -61,6 +61,7 @@ layout: false
 ---
 
 <!---
+
 ### The ecosystem: Vagrant, Docker and GitHub
 
 - Vagrant boxes for Virtual Machines
@@ -103,7 +104,7 @@ layout: false
 template: inverse
 ## The Singularity workflow
 
-<img src="assets/singularity_workflow.png" width="100%" />
+TODO
 ---
 ### Let's start with an example
 
@@ -132,70 +133,12 @@ $ singularity shell -B /some_om_path:/mnt docker://ggonzale/dcmtk
 --
 I did not need to download and compile code or talk to a system administrator.
 ---
-name: agenda
 
-### Singularity on Openmind
 
-What we will cover in the remaining time!
 
-0. Environment variables
-1. Running a docker image
-   - what's the difference between a docker container and a singularity container
-   - how to resolve mounting /om
-2. Writing specifications to create images
-   - Using [GitHub](https://github.com):
-      - Dockerfile for [Dockerhub](https://hub.docker.com/)
-      - Singularity for [Singularity-hub](https://singularity-hub.org/)
-3. Using [Vagrant](https://www.vagrantup.com/) to create an image
-   - Openmind peculiarities (vagrant dir, vbox vm dir)
-   - using /dev/shm to create images
-4. Creating and using a singularity image that uses a GPU
-5. Q&A
 
----
 
-### Environment variables
 
-**Singularity related variables**
-
-- `$SINGULARITY_CACHEDIR` controls where containers are downloaded to or expanded
-- `$HOME` is mounted into the container
-    - so anything on `$PATH` that exists in `$HOME` is available inside the container
-- Environment variables are carried over
-    - just like `srun/sbatch`
-    - Understand: `$PATH`, `$LD_LIBRARY_PATH`, `$PYTHONPATH`, `$OMP_NUM_THREADS`, ``$CUDA_VISIBLE_DEVICES`, etc.,.
-
-**Vagrant related variables**
-
-- `$VAGRANT_HOME` - location of vagrant directory
-- `machinefolder` a property for Virtualbox that determines locations of _**running**_ virtual machines.
-
----
-### Let's get started
-
-We need to set up our environment. We will use the interactive queue so that we can do things during this tutorial. (But it will be limited to 32 participants)
-
-```bash
-# Get on a compute node interactively
-$ srun -N1 -c2 -p om_interactive --pty bash
-
-# Execute all commands on the compute node
-$ module add openmind/singularity/2.2.1
-
-# for this tutorial we will use scratch
-$ mkdir /om/scratch/Thu/`whoami`
-$ mkdir /om/scratch/Thu/`whoami`/st
-$ mkdir /om/scratch/Thu/`whoami`/st/cache
-
-# These images can be large, so store them across disks
-$ lfs setstripe -c -1 /om/scratch/Thu/`whoami`/st/cache
-
-# We will use this location to download and store images
-$ export SINGULARITY_CACHEDIR=/om/scratch/Thu/`whoami`/st/cache
-$ cd /om/scratch/Thu/`whoami`/st
-```
-
----
 
 ### Example 1: Running a docker image
 
