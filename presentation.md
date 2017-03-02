@@ -59,6 +59,8 @@ layout: false
 - The details differ (and matter depending on application)
   - [Singularity vs everything else](http://singularity.lbl.gov/faq#general-singularity-info)
 ---
+
+<!---
 ### The ecosystem: Vagrant, Docker and GitHub
 
 - Vagrant boxes for Virtual Machines
@@ -77,6 +79,9 @@ layout: false
     - We **cannot** run docker on Openmind
         - Primarily because of security (root escalation possible)
 ---
+-->
+### VM vs Containers
+
 template: inverse
 
 ![containervsvm](http://www.bogotobogo.com/DevOps/Docker/images/Docker_vs_Virtual_Machine/Virtual_Machine_vs_Docker_Container.png)
