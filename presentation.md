@@ -32,6 +32,12 @@ layout: false
   - Data **AND** code **AND** compute environments
   - Passing environments has not been straightforward
 ---
+
+### More motivations
+
+    TODO
+---
+
 ### Virtual Machines and Container Technologies
 
 - Main idea: Isolate the computing environment
