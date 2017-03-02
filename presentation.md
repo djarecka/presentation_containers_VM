@@ -2,14 +2,12 @@ name: inverse
 layout: true
 class: center, middle, inverse
 ---
-# Singularity on Openmind
-### satra@mit.edu
+# Containers 
+### Dorota Jarecka
 ---
-Many thanks to the Singularity team
 
-[source](https://github.com/satra/om-images/tree/gh-pages) | CC-BY
+[source](https://github.com/djarecka/presentation_containers_VM)
 
-(You can update this presentation - just send a pull-request)
 ---
 layout: false
 ### Software Dependencies and Reproducible Research
