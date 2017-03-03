@@ -1,0 +1,371 @@
+\documentclass[t,svgnames]{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage{eurosym}
+\usepackage{tikz,latexsym}
+\usepackage{bm}
+\usepackage{tikz-qtree}
+\tikzset{
+    invisible/.style={opacity=0},
+    visible on/.style={alt={#1{}{invisible}}},
+    alt/.code args={<#1>#2#3}{%
+      \alt<#1>{\pgfkeysalso{#2}}{\pgfkeysalso{#3}} % \pgfkeysalso doesn't change the path
+    },
+}
+
+\definecolor{links}{HTML}{2A1B81}
+\hypersetup{colorlinks,linkcolor=,urlcolor=links}
+
+
+\usepackage{caption}
+\captionsetup[figure]{labelformat=empty}% redefines the caption setup of the figures environment
+
+\newcommand{\prog}[1]{{\rm\bf#1}}
+
+\newcommand\ftitle[1]{
+  \frametitle{{\color{FireBrick}#1}\\
+    \vspace{-.05\textheight}
+    \makebox[.9666\linewidth]{\rule{\paperwidth}{0.4pt}}
+  }
+}
+
+\usecolortheme{dove}
+\usenavigationsymbolstemplate{}
+
+%\usepackage[T1]{fontenc}
+%\usepackage{lmodern}
+
+\usepackage{relsize}
+\usepackage{fancyvrb}
+\fvset{frame=single,framerule=.2mm,fontsize=\relscale{.86}}
+%\input{pygments}
+
+\usepackage{float}
+\newfloat{Listing}{hbtp}{lop}[section]
+% dj: to mi cos przeszkadzalo z minted
+%\newcommand*\FancyVerbStartString{}
+%\newcommand*\FancyVerbStopString{}
+%\newcommand{\code}[3]{% args: file, listing no., gobble value
+%  \fvset{gobble=#3}%
+%  \renewcommand*\FancyVerbStartString{\PY{c+c1}{//\PYZlt{}listing\PYZhy{}#2\PYZgt{}}}%
+%  \renewcommand*\FancyVerbStopString{\PY{c+c1}{//\PYZlt{}/listing\PYZhy{}#2\PYZgt{}}}%
+%  \input{#1}%
+%}
+
+\setbeamertemplate{blocks}[rounded][shadow=true]
+\setbeamercolor{block title}{fg=White,bg=Black}
+\setbeamercolor{block body}{bg=Beige}
+
+\usepackage[overlay,absolute]{textpos}
+\setlength{\TPHorizModule}{1cm}
+\setlength{\TPVertModule}{1cm}
+
+
+\title{Containers: Vagrant, Docker, Singularity}
+
+\author{Dorota Jarecka: djarecka@mit.edu}
+%\institute{Institute of Geophysics, Faculty of Physics, University of Warsaw}
+
+\date{\small Brainhack Global 2017 -- Boston}
+
+\begin{document}
+  \frame{\maketitle}
+
+  \frame<1->{
+    \ftitle{Why do we need containers?}
+    \vspace{1em}
+      \begin{itemize}
+        \item<1->{Science Reproducibility}
+          \begin{itemize}
+          \item<2->{Each project in a lab depends on complex software environments}
+            \begin{itemize}
+            \item<2->{operating system}
+            \item<2->{drivers}
+            \item<2->{software dependencies: Python/MATLAB/R + libraries}
+          \end{itemize}
+            \vspace{2em}
+        \item<3>{We try to avoid}
+            \begin{itemize}
+            \item<3->{\it the computer I used was shut down a year ago, can't rerun the results from my publication...}
+            \item<3->{\it the analysis were run by my student, have no idea where and how...}
+            \item<3->{etc.}
+          \end{itemize}
+          \end{itemize}
+      \end{itemize}
+  }   
+
+  \frame<1->{
+    \ftitle{Why do we need containers?}
+    \vspace{1em}
+      \begin{itemize}
+        \item<1->{Collaboration wit your colleagues}
+          \begin{itemize}
+          \item<2->{Sharing your code or using a repository might not be enough}
+
+            \vspace{2em}
+
+        \item<3>{We try to avoid}
+            \begin{itemize}
+            \item<3->{\it well, I forgot to mention that you have to use Clang, gcc never worked for me...}
+            \item<3->{\it don't see any reason why it shouldn't work on Windows... (I actually have no idea about Windows, but won't say it...)}
+            \item<3->{\textit{\textbf{it works on my computer...}}}
+            \item<3->{etc.}
+          \end{itemize}
+          \end{itemize}
+      \end{itemize}
+  }
+
+
+  \frame<1->{
+    \ftitle{Why do we need containers?}
+      \begin{itemize}
+        \item<1->{Freedom to experiment!}
+          \uncover<2->{
+            \begin{figure}
+          \centering
+          \pgfimage[width=.4\textwidth]{img/universal_install_script_2x.png}
+          \caption{\small{Universal Install Script from xkcd: {\it The failures {\bf usually} don't hurt anything...} {\bf Usually} all your old programs work...}}
+        \end{figure}
+            }
+          \begin{itemize}
+
+        \item<3>{We try to avoid}
+            \begin{itemize}
+            \item<3->{\it I just want to Undo the last five hours of my life...}
+          \end{itemize}
+          \end{itemize}
+      \end{itemize}
+
+  }
+
+
+
+
+
+
+   \frame{
+      \ftitle{Virtual Machines and Container Technologies}
+      \begin{itemize}
+        \vspace{1em}
+        \item<1->{Main idea: isolate the computing environment
+          \begin{itemize}
+          \item<1->{Allow regenerating computing environments}
+          \item<1->{Allow sharing your computing environments}
+          \end{itemize}
+        }
+        \vspace{1em}
+        \item<2->{Two types:
+          \begin{itemize}
+          \item<2->{Virtual Machines
+            \begin{itemize}
+            \item<3->{\href{https://www.virtualbox.org/}{Virtualbox}}
+            \item<3->{\href{http://www.vmware.com/}{VMware}}
+            \item<3->{\href{http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html}{AWS}, \href{https://cloud.google.com/compute/}{Google Compute}, ...}
+            \end{itemize}
+          }
+          \item<2->{Containers
+            \begin{itemize}
+            \item<4->{\href{https://www.docker.com/}{Docker}}
+            \item<4->{\href{https://runc.io/}{runc}}
+            \item<4->{\href{https://linuxcontainers.org/}{lxc/lxd}}
+            \item<4->{\href{http://singularity.lbl.gov/}{Singularity}}
+            \end{itemize}
+
+          }
+          \end{itemize}
+        }
+
+        \vspace{1em}
+        \item<5->{The details differ (and matter depending on application)}
+      \end{itemize}
+   }
+
+   \frame{
+      \ftitle{Virtual Machines vs Container}
+      \uncover<1->{
+        \begin{figure}
+          \centering
+          \pgfimage[width=.8\textwidth]{img/Virtual_Machine_vs_Docker_Container.png}
+          %\caption{\tiny{http://www.bogotobogo.com/DevOps/Docker/images/Docker_vs_Virtual_Machine/Virtual_Machine_vs_Docker_Container.png}}
+        \end{figure}
+      }
+   }
+
+
+   \frame{
+     \ftitle{Vagrant}
+     \vspace{1em}
+     \begin{itemize}
+        \item<1->{is a command line utility for managing virtual machines}
+        \item<1->{provides easy to configure, reproducible, and portable work environments}
+        \item<1->{on top of VirtualBox, VMware, AWS, or any other provider (VirtualBox is the default machine)}
+     \end{itemize}
+   }
+
+
+   \frame{
+     \ftitle{Vagrant: Creating a computing environments using}
+     \vspace{1em}
+     \begin{itemize}
+        \item<1->{Using an existing box -- ubuntu/trusty64
+           \uncover<2->{
+           \vspace{2em}
+           \begin{block}{}
+           \$ mkdir vm \\
+           \$ cd vm \\
+           \$ vagrant init ubuntu/trusty64 \\
+           \$ vagrant up ~~~\# the same as vagrant up --provider virtualbox \\
+           \$ vagrant ssh  ~~~\# or vagrant ssh -c /bin/sh
+           \end{block}}
+        }
+     \end{itemize}
+   }
+
+   \frame{
+     \ftitle{Vagrant: installing new software}
+     \vspace{1em}
+     \begin{itemize}
+        \item<1->{installing Emacs\\
+          \vspace{0.5em} 
+           \uncover<2->{within the VM:
+           \begin{block}{}
+           \$ sudo apt-get update \\
+           \$ sudo apt-get install emacs \\
+           \$ emacs \\ 
+           \$ exit
+           \end{block}}
+        }
+          \vspace{2em}
+        \item<2->{installing FSL\\
+          \vspace{0.5em}
+          \begin{itemize}
+          \item<2->{follow the instruction from {\href{http://neuro.debian.net/install_pkg.html?p=fsl-complete}{NeuroDebian}} (once it's fixed)}
+          \end{itemize}
+          }
+     \end{itemize}
+   }
+
+   \frame{
+     \ftitle{Docker}
+     \vspace{1em}
+     \begin{itemize}
+        \item{leading software container platform}
+        \item{an open-source project}
+        \item{bundle libraries and required settings only (not a full operating system)}
+        \item{more lightweight to deploy and faster to start up than VM}
+        \vspace{4em}
+        \item<2->{testing your Docker installation:
+          \vspace{1em}
+          \begin{block}{}
+            \$ docker run hello-world \\
+          \end{block}}
+
+      \end{itemize}
+   }
+
+
+
+   \frame{
+     \ftitle{Docker}
+     \vspace{1em}
+     \begin{itemize}
+        \item<1->{Using existing images
+          \vspace{1em}
+          \begin{block}{}
+            \$ docker pull busybox \\
+            \$ docker images \\
+            % todo rozbic to moze jakos??
+            \$ docker run busybox \\
+            \$ docker run busybox echo ``hello from busybox'' \\
+            \$ docker run -it busybox sh \\
+            \$ docker ps \\
+            \$ docker rm \\
+            %or
+            \$ docker run -it \texttt{--}rm busybox \\
+            \$ docker run -it \texttt{--}rm -v YourDirectory:/src busybox \\
+          \end{block}}
+
+
+     \end{itemize}
+   }
+
+   \frame{
+     \ftitle{Docker: Installing software with Dockerfile}
+     \vspace{1em}
+     \begin{itemize}
+        \item<1->{Dockerfile content
+          \begin{block}{}
+          FROM bids/base\_fsl \\
+          RUN apt-get update -y \&\& apt-get install -y r-base
+          \end{block}}
+        \item<2->{Building a new container
+          \vspace{1em}
+          \begin{block}{}
+            \$ docker build -t fslR .
+          \end{block}}
+        \item<3->{Running your new container
+          \vspace{1em}
+          \begin{block}{}
+            \$ docker run -ti \texttt{--}rm fslR
+          \end{block}}
+
+      \end{itemize}
+   }
+
+
+   \frame{
+     \ftitle{Docker and Nipype}
+     \vspace{1em}
+     \begin{itemize}
+       \item{Using Nipype official Docker image}
+       \vspace{1em}
+          \uncover<2->{
+          \begin{block}{}
+            \$ docker images \\
+            \$ docker pull nipype/nipype \\ %\#only if you haven't done it before (it's 5G) \\
+            \$ docker images \\
+            \$ docker run -it \texttt{--}rm nipype/nipype \\
+          \end{block}}
+          \vspace{1em}
+          \uncover<3->{
+          \begin{itemize}
+           \item{within the nipype container}
+          \end{itemize}
+          \begin{block}{}
+            \$ cd /src/nipype/nipype/pipeline/engine/ \\
+            \$ py.test
+          \end{block}}
+
+
+     \end{itemize}
+   }
+
+
+   \frame{
+     \ftitle{Docker: Docker Hub}
+     \vspace{1em}
+     Docker Hub is a cloud-based registry service which allows you to link to code repositories, build your images and share them. 
+     \vspace{3em}
+     \begin{itemize}
+        \item<1->{\href{https://hub.docker.com/r/nipype/nipype/}{Nipype}}
+        \item<2->{\href{https://hub.docker.com/r/continuumio/anaconda/}{Anaconda - a python distribution}}
+        \item<3->{\href{https://hub.docker.com/r/continuumio/miniconda/}{Miniconda - a package manager}}
+     \end{itemize}
+   }
+
+   \frame{
+     \ftitle{Singularity}
+     \vspace{1em}
+     \begin{itemize}
+        \item<1->{a container solution created for scientific and application driven workloads.}
+        \item<2->{supports existing and traditional HPC resources}
+        \item<3->{a user inside a Singularity container is the same user as outside the container}
+        \item<4->{can use Vagrant to create containers (you have root privileges on your VM!)}
+        \item<5->{can run existing Docker containers}
+        \item<6->{Satra's presentation -- {\href{http://satra.cogitatum.org/om-images/}{Singularity on Openmind}}}
+     \end{itemize}
+   }
+
+
+
+
+\end{document}
